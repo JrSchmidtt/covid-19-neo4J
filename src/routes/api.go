@@ -13,5 +13,9 @@ func API(r *gin.Engine) *gin.Engine {
 	{
 		v1.GET("/ping", handler.HealthCheck)
 	}
+	etl := v1.Group("/etl") // Extract, Transform, Load
+	{
+		etl.POST("/csv", handler.ProcessCSV)
+	}
 	return r
 }
