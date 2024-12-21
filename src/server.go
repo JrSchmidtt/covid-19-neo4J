@@ -14,8 +14,8 @@ func Run() error {
 	err := godotenv.Load() ; if err != nil {
 		log.Fatal(err)
 	}
-	router := gin.Default()
-	router = routes.API(router)
+	gin := gin.Default()
+	router := routes.API(gin)
 	err = router.Run(":" + os.Getenv("PORT"))
 	fmt.Println("Server running on port", os.Getenv("PORT"))
 	if err != nil {
