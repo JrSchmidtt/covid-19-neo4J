@@ -10,51 +10,58 @@ var comma = ';'
 var commaCovidGlobal = ','
 
 func ProcessCSV(c *gin.Context) {
-	vaccinationFile, _, err := c.Request.FormFile("vaccination");if err != nil {
-		c.JSON(400, gin.H{"error": "bad request please provide a file with key 'vaccination'"})
-		return
-	}
-	defer vaccinationFile.Close()
-	vaccinationRaw, err := service.ProcessCSV(vaccinationFile, comma); if err != nil {
-		c.JSON(500, gin.H{"error": "internal server error"})
-		return
-	}
+	var errors []string
+	var warnings []string
 
-	vaccineFile, _, err := c.Request.FormFile("vaccine"); if err != nil {
-		c.JSON(400, gin.H{"error": "bad request please provide a file with key 'vaccine'"})
-		return
-	}
-	defer vaccineFile.Close()
-	vaccineRaw, err := service.ProcessCSV(vaccineFile, comma); if err != nil {
-		c.JSON(500, gin.H{"error": "internal server error"})
-		return
-	}
-
-	covidFile, _, err := c.Request.FormFile("covid"); if err != nil {
-		c.JSON(400, gin.H{"error": "bad request please provide a file with key 'covid'"})
-		return
-	}
-	defer covidFile.Close()
-	covidRaw, err := service.ProcessCSV(covidFile, comma); if err != nil {
-		c.JSON(500, gin.H{"error": "internal server error"})
-		return
-	}
-
-	covidGlobalFile, _, err := c.Request.FormFile("covid_global")
+	vaccinationRaw, err := processFile(c, "vaccination", comma)
 	if err != nil {
-		c.JSON(400, gin.H{"error": "bad request please provide a file with key 'covid_global'"})
-		return
+		errors = append(errors, "Error processing 'vaccination': "+err.Error())
 	}
-	defer covidGlobalFile.Close()
-	covidGlobaRaw, err := service.ProcessCSV(covidGlobalFile, commaCovidGlobal)
+
+	vaccineRaw, err := processFile(c, "vaccine", comma)
 	if err != nil {
-		c.JSON(500, gin.H{"error": "internal server error"})
+		errors = append(errors, "Error processing 'vaccine': "+err.Error())
+	}
+
+	covidRaw, err := processFile(c, "covid", comma)
+	if err != nil {
+		errors = append(errors, "Error processing 'covid': "+err.Error())
+	}
+
+	covidGlobalRaw, err := processFile(c, "covid_global", commaCovidGlobal)
+	if err != nil {
+		warnings = append(warnings, "Warning: Unable to process the optional file 'covid_global'.: "+err.Error())
+	}
+
+	if len(errors) > 0 {
+		c.JSON(422, gin.H{
+			"message": "error on process one or more files",
+			"errors": errors,
+			"warning": warnings,
+		})
 		return
 	}
+
 	c.JSON(http.StatusOK, gin.H{
+		"message":        "success",
 		"vaccinationRaw": vaccinationRaw,
 		"vaccineRaw":     vaccineRaw,
 		"covidRaw":       covidRaw,
-		"covidGlobalRaw": covidGlobaRaw,
+		"covidGlobalRaw": covidGlobalRaw,
+		"warning":        warnings,
 	})
+}
+
+func processFile(c *gin.Context, key string, delimiter rune) (interface{}, error) {
+	file, _, err := c.Request.FormFile(key)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	rawData, err := service.ProcessCSV(file, delimiter)
+	if err != nil {
+		return nil, err
+	}
+	return rawData, nil
 }
