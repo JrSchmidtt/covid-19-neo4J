@@ -1,0 +1,6 @@
+github.com/marcelomd/pcg v0.0.0-20191007022820-2e7a9cf97186 h1:gGuyXRtOURIdfV3Vj3ds2PjnpsfAyMZBCzDn10WLYd4=
+github.com/marcelomd/pcg v0.0.0-20191007022820-2e7a9cf97186/go.mod h1:Ul75vwEUUyjUS2mFOuzAZFu5IQghl/KkS5BycQ1Me0g=
+github.com/oklog/ulid v1.3.1 h1:EGfNDEx6MqHz8B3uNV6QAib1UR2Lm97sHi3ocA6ESJ4=
+github.com/oklog/ulid v1.3.1/go.mod h1:CirwcVhetQ6Lv90oh/F+FBtV6XMibvdAFo93nm5qn4U=
+github.com/richardlehane/crock32 v1.0.1 h1:GV9EqtAr7RminQ8oGrDt3gYXkzDDPJ5fROaO1Mux14g=
+github.com/richardlehane/crock32 v1.0.1/go.mod h1:xUIlLABtHBgs1bNIBdUQR9F2xtRzS0TujtbR68hmEWU=
