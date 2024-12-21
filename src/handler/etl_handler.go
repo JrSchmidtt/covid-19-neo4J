@@ -12,22 +12,38 @@ import (
 var comma = ';' // default comma separator
 
 func ProcessCSV(c *gin.Context) {
-	vaccinationDataFile, _, err := c.Request.FormFile("vaccination-data")
+	vaccinationDataFile, _, err := c.Request.FormFile("vaccination")
 	if err != nil {
 		log.Println(err)
-		c.JSON(400, gin.H{"error": "bad request"})
+		c.JSON(400, gin.H{"error": "bad request please provide a file with key 'vaccination'"})
 		return
 	}
 	defer vaccinationDataFile.Close()
 	vaccinationReader := csv.NewReader(vaccinationDataFile)
 	vaccinationReader.Comma = comma
-	rawData, err := utils.ExtractDataFromCSV(vaccinationReader)
+	vaccinationRawData, err := utils.ExtractDataFromCSV(vaccinationReader)
+	if err != nil {
+		log.Println(err)
+		c.JSON(500, gin.H{"error": "internal server error"})
+		return
+	}
+	vaccineDataFile, _, err := c.Request.FormFile("vaccine")
+	if err != nil {
+		log.Println(err)
+		c.JSON(400, gin.H{"error": "bad request please provide a file with key 'vaccine-data'"})
+		return
+	}
+	defer vaccineDataFile.Close()
+	vaccineReader := csv.NewReader(vaccineDataFile)
+	vaccineReader.Comma = comma
+	vaccineRawData, err := utils.ExtractDataFromCSV(vaccineReader)
 	if err != nil {
 		log.Println(err)
 		c.JSON(500, gin.H{"error": "internal server error"})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
-		"rawData": rawData,
+		"vaccinationRawData": vaccinationRawData,
+		"vaccineRawData":     vaccineRawData,
 	})
 }

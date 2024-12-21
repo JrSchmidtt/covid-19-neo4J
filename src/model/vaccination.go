@@ -2,7 +2,7 @@ package model
 
 import "time"
 
-// Represents a vaccination data from a country
+// Represents a vaccination data from a country or world region.
 type VaccinationStats struct {
 	ID                               string    `json:"id"` // Internal ID for the record
 	Country                          string    `json:"country"`
