@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/JrSchmidtt/covid-19-neo4J/src/connection"
 	"github.com/JrSchmidtt/covid-19-neo4J/src/routes"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -12,6 +13,9 @@ import (
 
 func Run() error {
 	err := godotenv.Load() ; if err != nil {
+		log.Fatal(err)
+	}
+	connection.InitNeo4j(); if err != nil {
 		log.Fatal(err)
 	}
 	gin := gin.Default()

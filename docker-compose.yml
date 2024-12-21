@@ -5,7 +5,7 @@ services:
     image: neo4j:5.9
     container_name: neo4j
     environment:
-      - NEO4J_AUTH=/neo4j # Default: neo4j/neo4j
+      - NEO4J_AUTH=neo4j/XHO112OV # Default: neo4j/neo4j
       - NEO4J_dbms_logs_debug_level=INFO
     ports:
       - "7474:7474" # Interface web
