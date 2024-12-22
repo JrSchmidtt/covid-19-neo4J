@@ -1,115 +1,58 @@
 package handler
 
 import (
-	"bytes"
-	"io"
-	"net/http"
-	"sync"
+	"encoding/csv"
+	"fmt"
 
-	"github.com/JrSchmidtt/covid-19-neo4J/src/service"
+	"github.com/JrSchmidtt/covid-19-neo4J/src/model"
 	"github.com/gin-gonic/gin"
+	"github.com/gocarina/gocsv"
 )
 
-const comma = ';'
-const commaCovidGlobal = ','
-type filesConfig struct {
-	key       string
-	delimiter rune
-	isOptional bool
-}
-
 func ProcessCSV(c *gin.Context) {
-	var errors []string
-	var warnings []string
+    var errors []string
+    var warnings []string
 
-	files := make(map[string][]byte)
-	filesConfig := []filesConfig{
-		{"vaccination", comma, false},
-		{"vaccine", comma, false},
-		{"covid", comma, false},
-		{"covid_global", commaCovidGlobal, true},
-	}
+    // Abre o arquivo CSV enviado
+    file, _, err := c.Request.FormFile("vaccination")
+    if err != nil {
+        errors = append(errors, "Error retrieving file 'vaccination': "+err.Error())
+        c.JSON(422, gin.H{
+            "message":  "error processing file",
+            "errors":   errors,
+            "warnings": warnings,
+        })
+        return
+    }
+    defer file.Close()
 
-	for _, config := range filesConfig {
-		file, _, err := c.Request.FormFile(config.key)
-		if err != nil {
-			if config.isOptional {
-				warnings = append(warnings, "Warning: Unable to process the optional file '"+config.key+"': "+err.Error())
-			} else {
-				errors = append(errors, "Error retrieving file '"+config.key+"': "+err.Error())
-			}
-			continue
+    // Configura o delimitador como ponto e vírgula
+    csvReader := csv.NewReader(file)
+    csvReader.Comma = ';'
+
+    var vaccinationData []model.Vaccination
+    if err := gocsv.UnmarshalCSV(csvReader, &vaccinationData); err != nil {
+        errors = append(errors, "Error unmarshalling CSV data: "+err.Error())
+		for _, v := range vaccinationData {
+			fmt.Println(v)
 		}
-		defer file.Close()
+        c.JSON(422, gin.H{
+            "message":  "error parsing CSV data",
+            "errors":   errors,
+            "warnings": warnings,
+        })
+        return
+    }
 
-		data, err := io.ReadAll(file)
-		if err != nil {
-			if config.isOptional {
-				warnings = append(warnings, "Warning: Unable to read the optional file '"+config.key+"': "+err.Error())
-			} else {
-				errors = append(errors, "Error reading file '"+config.key+"': "+err.Error())
-			}
-			continue
-		}
-		files[config.key] = data
-	}
+    // Exibe os dados processados para depuração
+    for _, v := range vaccinationData {
+        fmt.Println(v)
+    }
 
-	if len(errors) > 0 {
-		c.JSON(422, gin.H{
-			"message": "error on process one or more files",
-			"errors":  errors,
-			"warning": warnings,
-		})
-		return
-	}
-
-	// Process files concurrently
-	results := make(map[string]interface{})
-	var wg sync.WaitGroup
-	var mu sync.Mutex
-
-	wg.Add(len(files))
-	for key, data := range files {
-		go func(fileKey string, fileData []byte, delimiter rune) {
-			defer wg.Done()
-			rawData, err := service.ExtractData(bytes.NewReader(fileData), delimiter)
-			mu.Lock()
-			defer mu.Unlock()
-			if err != nil {
-				errors = append(errors, "Error processing '"+fileKey+"': "+err.Error())
-				return
-			}
-			results[fileKey] = rawData
-		}(key, data, getDelimiterForKey(key))
-	}
-	wg.Wait()
-
-	vacination, err := service.TransformVaccination(results["vaccination"].([]map[string]string))
-	if err != nil {
-		errors = append(errors, "Error transforming vaccination data: "+err.Error())
-	}
-
-
-	if len(errors) > 0 {
-		c.JSON(422, gin.H{
-			"message": "error on process one or more files",
-			"errors":  errors,
-			"warnings": warnings,
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"message": "success",
-		// "results": results,
-		"warning": warnings,
-		"vaccination": vacination,
-	})
-}
-
-func getDelimiterForKey(key string) rune {
-	if key == "covid_global" {
-		return commaCovidGlobal
-	}
-	return comma
+    c.JSON(200, gin.H{
+        "message":  "success",
+        "errors":   errors,
+        "warnings": warnings,
+        "data":     vaccinationData,
+    })
 }
