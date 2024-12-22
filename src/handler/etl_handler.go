@@ -72,7 +72,7 @@ func ProcessCSV(c *gin.Context) {
 	for key, data := range files {
 		go func(fileKey string, fileData []byte, delimiter rune) {
 			defer wg.Done()
-			rawData, err := service.ProcessCSV(bytes.NewReader(fileData), delimiter)
+			rawData, err := service.ExtractData(bytes.NewReader(fileData), delimiter)
 			mu.Lock()
 			defer mu.Unlock()
 			if err != nil {
@@ -83,6 +83,12 @@ func ProcessCSV(c *gin.Context) {
 		}(key, data, getDelimiterForKey(key))
 	}
 	wg.Wait()
+
+	vacination, err := service.TransformVaccination(results["vaccination"].([]map[string]string))
+	if err != nil {
+		errors = append(errors, "Error transforming vaccination data: "+err.Error())
+	}
+
 
 	if len(errors) > 0 {
 		c.JSON(422, gin.H{
@@ -95,8 +101,9 @@ func ProcessCSV(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "success",
-		"results": results,
+		// "results": results,
 		"warning": warnings,
+		"vaccination": vacination,
 	})
 }
 
