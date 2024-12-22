@@ -1,67 +1,108 @@
 package handler
 
 import (
+	"bytes"
+	"io"
 	"net/http"
+	"sync"
+
 	"github.com/JrSchmidtt/covid-19-neo4J/src/service"
 	"github.com/gin-gonic/gin"
 )
 
-var comma = ';'
-var commaCovidGlobal = ','
+const comma = ';'
+const commaCovidGlobal = ','
+type filesConfig struct {
+	key       string
+	delimiter rune
+	isOptional bool
+}
 
 func ProcessCSV(c *gin.Context) {
 	var errors []string
 	var warnings []string
 
-	vaccinationRaw, err := processFile(c, "vaccination", comma)
-	if err != nil {
-		errors = append(errors, "Error processing 'vaccination': "+err.Error())
+	files := make(map[string][]byte)
+	filesConfig := []filesConfig{
+		{"vaccination", comma, false},
+		{"vaccine", comma, false},
+		{"covid", comma, false},
+		{"covid_global", commaCovidGlobal, true},
 	}
 
-	vaccineRaw, err := processFile(c, "vaccine", comma)
-	if err != nil {
-		errors = append(errors, "Error processing 'vaccine': "+err.Error())
-	}
+	for _, config := range filesConfig {
+		file, _, err := c.Request.FormFile(config.key)
+		if err != nil {
+			if config.isOptional {
+				warnings = append(warnings, "Warning: Unable to process the optional file '"+config.key+"': "+err.Error())
+			} else {
+				errors = append(errors, "Error retrieving file '"+config.key+"': "+err.Error())
+			}
+			continue
+		}
+		defer file.Close()
 
-	covidRaw, err := processFile(c, "covid", comma)
-	if err != nil {
-		errors = append(errors, "Error processing 'covid': "+err.Error())
-	}
-
-	covidGlobalRaw, err := processFile(c, "covid_global", commaCovidGlobal)
-	if err != nil {
-		warnings = append(warnings, "Warning: Unable to process the optional file 'covid_global'.: "+err.Error())
+		data, err := io.ReadAll(file)
+		if err != nil {
+			if config.isOptional {
+				warnings = append(warnings, "Warning: Unable to read the optional file '"+config.key+"': "+err.Error())
+			} else {
+				errors = append(errors, "Error reading file '"+config.key+"': "+err.Error())
+			}
+			continue
+		}
+		files[config.key] = data
 	}
 
 	if len(errors) > 0 {
 		c.JSON(422, gin.H{
 			"message": "error on process one or more files",
-			"errors": errors,
+			"errors":  errors,
 			"warning": warnings,
 		})
 		return
 	}
 
+	// Process files concurrently
+	results := make(map[string]interface{})
+	var wg sync.WaitGroup
+	var mu sync.Mutex
+
+	wg.Add(len(files))
+	for key, data := range files {
+		go func(fileKey string, fileData []byte, delimiter rune) {
+			defer wg.Done()
+			rawData, err := service.ProcessCSV(bytes.NewReader(fileData), delimiter)
+			mu.Lock()
+			defer mu.Unlock()
+			if err != nil {
+				errors = append(errors, "Error processing '"+fileKey+"': "+err.Error())
+				return
+			}
+			results[fileKey] = rawData
+		}(key, data, getDelimiterForKey(key))
+	}
+	wg.Wait()
+
+	if len(errors) > 0 {
+		c.JSON(422, gin.H{
+			"message": "error on process one or more files",
+			"errors":  errors,
+			"warnings": warnings,
+		})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
-		"message":        "success",
-		"vaccinationRaw": vaccinationRaw,
-		"vaccineRaw":     vaccineRaw,
-		"covidRaw":       covidRaw,
-		"covidGlobalRaw": covidGlobalRaw,
-		"warning":        warnings,
+		"message": "success",
+		"results": results,
+		"warning": warnings,
 	})
 }
 
-func processFile(c *gin.Context, key string, delimiter rune) (interface{}, error) {
-	file, _, err := c.Request.FormFile(key)
-	if err != nil {
-		return nil, err
+func getDelimiterForKey(key string) rune {
+	if key == "covid_global" {
+		return commaCovidGlobal
 	}
-	defer file.Close()
-
-	rawData, err := service.ProcessCSV(file, delimiter)
-	if err != nil {
-		return nil, err
-	}
-	return rawData, nil
+	return comma
 }
