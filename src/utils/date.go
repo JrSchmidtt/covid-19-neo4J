@@ -11,3 +11,8 @@ func ParseDate(date string) (time.Time) {
 	}
 	return parsedDate
 }
+
+// Returns the current time in UTC-3
+func TimeNow() time.Time {
+	return time.Now().UTC().Add(-3 * time.Hour)
+}
