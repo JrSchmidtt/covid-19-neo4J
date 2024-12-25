@@ -9,50 +9,65 @@ import (
 	"github.com/gocarina/gocsv"
 )
 
+type fileConfig struct {
+	Key   string
+	Comma rune
+	Model interface{}
+}
+
 func ProcessCSV(c *gin.Context) {
-    var errors []string
-    var warnings []string
+	filesConfig := []fileConfig{
+		{Key: "vaccination", Comma: ';', Model: &[]model.Vaccination{}},
+		{Key: "vaccine", Comma: ';', Model: &[]model.Vaccine{}},
+		{Key: "covid_global", Comma: ',', Model: &[]model.CovidGlobal{}},
+		{Key: "covid", Comma: ';', Model: &[]model.Covid{}},
+	}
 
-    // Abre o arquivo CSV enviado
-    file, _, err := c.Request.FormFile("vaccination")
-    if err != nil {
-        errors = append(errors, "Error retrieving file 'vaccination': "+err.Error())
-        c.JSON(422, gin.H{
-            "message":  "error processing file",
-            "errors":   errors,
-            "warnings": warnings,
-        })
-        return
-    }
-    defer file.Close()
+	var errors []string
+	var warnings []string
+	parsedData := make(map[string]interface{})
 
-    // Configura o delimitador como ponto e vírgula
-    csvReader := csv.NewReader(file)
-    csvReader.Comma = ';'
-
-    var vaccinationData []model.Vaccination
-    if err := gocsv.UnmarshalCSV(csvReader, &vaccinationData); err != nil {
-        errors = append(errors, "Error unmarshalling CSV data: "+err.Error())
-		for _, v := range vaccinationData {
-			fmt.Println(v)
+	for _, fileCfg := range filesConfig {
+		fileData, err := processFile(c, fileCfg)
+		if err != nil {
+			errors = append(errors, fmt.Sprintf("Error processing file '%s': %v", fileCfg.Key, err))
+			continue
 		}
-        c.JSON(422, gin.H{
-            "message":  "error parsing CSV data",
-            "errors":   errors,
-            "warnings": warnings,
-        })
-        return
-    }
 
-    // Exibe os dados processados para depuração
-    for _, v := range vaccinationData {
-        fmt.Println(v)
-    }
+		parsedData[fileCfg.Key] = fileData
+	}
 
-    c.JSON(200, gin.H{
-        "message":  "success",
-        "errors":   errors,
-        "warnings": warnings,
-        "data":     vaccinationData,
-    })
+	if len(errors) > 0 {
+		c.JSON(422, gin.H{
+			"message":  "error processing some files",
+			"errors":   errors,
+			"warnings": warnings,
+			"data":     parsedData,
+		})
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"message":  "success",
+		"errors":   errors,
+		"warnings": warnings,
+		// "data":     parsedData, // TODO: Make this a query parameter.
+	})
+}
+
+func processFile(c *gin.Context, cfg fileConfig) (interface{}, error) {
+	file, _, err := c.Request.FormFile(cfg.Key)
+	if err != nil {
+		return nil, fmt.Errorf("failed to retrieve file: %w", err)
+	}
+	defer file.Close()
+
+	csvReader := csv.NewReader(file)
+	csvReader.Comma = cfg.Comma
+
+	if err := gocsv.UnmarshalCSV(csvReader, cfg.Model); err != nil {
+		return nil, fmt.Errorf("error unmarshalling CSV data: %w", err)
+	}
+
+	return cfg.Model, nil
 }
