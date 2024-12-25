@@ -4,7 +4,7 @@ import "time"
 
 // Represents a vaccination data from a country or world region.
 type Vaccination struct {
-	ID                               string    `json:"id" csv:"ID"` // Internal ID for the record
+	ID                               int64     `json:"id"` // Internal ID for the record
 	Country                          string    `json:"country" csv:"COUNTRY"`
 	ISO3                             string    `json:"iso3" csv:"ISO3"`
 	WHORegion                        string    `json:"who_region" csv:"WHO_REGION"`   // World Health Organization Region
