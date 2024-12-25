@@ -3,19 +3,20 @@ package connection
 import (
 	"context"
 	"fmt"
+	"github.com/joho/godotenv"
+	"github.com/neo4j/neo4j-go-driver/v5/neo4j"
 	"log"
 	"os"
 	"sync"
 	"time"
-
-	"github.com/joho/godotenv"
-	"github.com/neo4j/neo4j-go-driver/v5/neo4j"
 )
 
 var (
-	once        sync.Once
-	Neo4jDriver *neo4j.DriverWithContext
-	mu          sync.Mutex
+	once         sync.Once
+	Neo4jDriver  *neo4j.DriverWithContext
+	sessionOnce  sync.Once
+	Neo4jSession *neo4j.SessionWithContext
+	mu           sync.Mutex
 )
 
 // InitNeo4j initializes the Neo4j driver as a Singleton
@@ -65,22 +66,48 @@ func GetOperationContext() (context.Context, context.CancelFunc) {
 
 // GetNeo4jDriver returns the Singleton Neo4j driver instance
 func GetNeo4jDriver() *neo4j.DriverWithContext {
-	mu.Lock()
-	defer mu.Unlock()
-
 	if Neo4jDriver == nil {
 		InitNeo4j()
 	}
 	return Neo4jDriver
 }
 
-// CloseNeo4j closes the Neo4j driver
+// GetNeo4jSession returns a Singleton instance of the Neo4j session
+func GetNeo4jSession() *neo4j.SessionWithContext {
+	sessionOnce.Do(func() {
+		driver := GetNeo4jDriver()
+		session := (*driver).NewSession(context.Background(), neo4j.SessionConfig{AccessMode: neo4j.AccessModeWrite})
+		Neo4jSession = &session
+	})
+	return Neo4jSession
+}
+
+// CloseNeo4j closes the Neo4j driver and the session
 func CloseNeo4j() {
 	mu.Lock()
 	defer mu.Unlock()
 
+	if Neo4jSession != nil {
+		(*Neo4jSession).Close(context.Background())
+		Neo4jSession = nil
+		fmt.Println("Neo4j session closed.")
+	}
+
 	if Neo4jDriver != nil {
 		(*Neo4jDriver).Close(context.Background())
+		Neo4jDriver = nil
 		fmt.Println("Neo4j connection closed.")
 	}
+}
+
+// ExecuteWriteTransaction executes a write transaction in Neo4j using the Singleton session
+func ExecuteWriteTransaction(ctx context.Context, query string, params map[string]interface{}) (any, error) {
+	session := GetNeo4jSession() // Use Singleton session
+
+	// Execute the write transaction
+	data, err := (*session).ExecuteWrite(ctx, func(tx neo4j.ManagedTransaction) (interface{}, error) {
+		_, err := tx.Run(ctx, query, params)
+		return nil, err
+	})
+	return data, err
 }
