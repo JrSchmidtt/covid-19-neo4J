@@ -52,6 +52,13 @@ func ProcessCSV(c *gin.Context) {
 		})
 		return
 	}
+	if err := etlService.Load(parsedData); err != nil {
+		c.JSON(500, gin.H{
+			"message": "error loading data",
+			"error":   err.Error(),
+		})
+		return
+	}
 	// vaccination := parsedData["vaccination"].(*[]model.Vaccination)
 	// vaccine := parsedData["vaccine"].(*[]model.Vaccine)
 	// covidGlobal := parsedData["covid_global"].(*[]model.CovidGlobal)
@@ -61,7 +68,7 @@ func ProcessCSV(c *gin.Context) {
 		"message":  "success",
 		"errors":   errors,
 		"warnings": warnings,
-		 "data":     parsedData,
+		//  "data":     parsedData,
 		// "data":     parsedData, // TODO: Make this a query parameter.
 	})
 }
