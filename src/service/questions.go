@@ -13,3 +13,13 @@ func GetTotalCasesAndDeathsByCountryAndDate(country_code string, date string) ([
 func GetVaccinatedPeopleByCountryAndDate(country_code string, date string) (map[string]interface{}, error) {
 	return storage.GetPersonsVaccinated1PlusDose(country_code, date)
 }
+
+// GetVaccinesByCountryAndStartDate retrieves the vaccines used by a specific country and start date.
+func GetVaccinesByCountryAndStartDate(country_code string, start_date string) (map[string]interface{}, error) {
+	return storage.GetVaccinesByCountryAndStartDate(country_code, start_date)
+}
+
+// GetMostUsedVaccineByRegion retrieves the most used vaccine by a specific region.
+func GetMostUsedVaccineByRegion(region string) (map[string]interface{}, error) {
+	return storage.GetMostUsedVaccineByRegion(region)
+}
