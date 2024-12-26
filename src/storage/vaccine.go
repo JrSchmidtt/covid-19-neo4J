@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	"github.com/JrSchmidtt/covid-19-neo4J/pkg/id"
@@ -22,20 +23,25 @@ func CreateVaccine(vaccine model.Vaccine) (model.Vaccine, error) {
 	}
 
 	query := `
-		MERGE (d:Date {date: $start_date})
-		WITH d
+    	MERGE (d:Date {date: $start_date})
+    	WITH d
 
-		CREATE (v:Vaccine)
-		SET v = $vaccine
+    	MATCH (c:Country {code: $country_code})
+    	WITH d, c
 
-		MERGE (v)-[:STARTED_ON]->(d)
-		MERGE (v)-[:AUTHORIZATION_ON]->(authDate:Date {date: $authorization_date})
+    	CREATE (v:Vaccine)
+    	SET v = $vaccine
+
+    	MERGE (v)-[:STARTED_ON]->(d)
+    	MERGE (v)-[:AUTHORIZATION_ON]->(authDate:Date {date: $authorization_date})
+    	MERGE (v)-[:USES]->(c)
 	`
 
 	_, err = connection.ExecuteWriteTransaction(context.Background(), query, map[string]interface{}{
 		"vaccine":            vaccineMap,
 		"start_date":         vaccine.StartDate,
 		"authorization_date": vaccine.AuthorizationDate,
+		"country_code":       vaccine.ISO3,
 	})
 	if err != nil {
 		log.Println("Error creating vaccine record:", err)
@@ -45,3 +51,46 @@ func CreateVaccine(vaccine model.Vaccine) (model.Vaccine, error) {
 	return vaccine, nil
 }
 
+func GetVaccinesByCountryAndStartDate(country_code string, start_date string) (map[string]interface{}, error) {
+	fmt	.Println("country_code", country_code)
+	fmt.Println("start_date", start_date)
+	query := `
+		MATCH (v:Vaccine {iso3: $country_code})
+		MATCH (v:Vaccine)-[:USES]->(c)
+		MATCH (v)-[:STARTED_ON]->(d:Date {date: $start_date})
+		RETURN c, v, d
+	`
+
+	result, err := connection.ExecuteReadTransactionMap(context.Background(), query, map[string]interface{}{
+		"start_date": start_date,
+		"country_code": country_code,
+	})
+	if err != nil {
+		log.Println("Error retrieving vaccines by country and start date:", err)
+		return nil, err
+	}
+
+	return result, nil
+}
+
+
+func GetMostUsedVaccineByRegion(region string) (map[string]interface{}, error) {
+	query := `
+		MATCH (r:Region {name: "AFRO"})
+		MATCH (c:Country)-[:BELONGS]->(r)
+		MATCH (v:Vaccine)-[:USES]->(c)
+		WITH v, COUNT(c) AS vaccineCount
+		ORDER BY vaccineCount DESC
+		RETURN v.product AS mostUsedVaccine, vaccineCount
+	`
+
+	result, err := connection.ExecuteReadTransactionMap(context.Background(), query, map[string]interface{}{
+		"region": region,
+	})
+	if err != nil {
+		log.Println("Error retrieving most used vaccine by region:", err)
+		return nil, err
+	}
+
+	return result, nil
+}
