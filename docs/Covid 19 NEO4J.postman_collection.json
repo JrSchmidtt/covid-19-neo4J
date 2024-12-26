@@ -1,0 +1,696 @@
+{
+	"info": {
+		"_postman_id": "9f06a434-ff76-4abd-acc1-65c9d91ba2df",
+		"name": "Covid 19 NEO4J",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "25528489"
+	},
+	"item": [
+		{
+			"name": "Extract, Transform, Load",
+			"item": [
+				{
+					"name": "Process CSV",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "vaccination",
+									"description": "Required*",
+									"type": "file",
+									"src": "/D:/covid-19-neo4J/docs/data/vaccination-data.csv"
+								},
+								{
+									"key": "vaccine",
+									"description": "Required*",
+									"type": "file",
+									"src": "postman-cloud:///1efbfc64-69fc-43c0-a532-12152024084b"
+								},
+								{
+									"key": "covid_global",
+									"description": "Opitional file",
+									"type": "file",
+									"src": "postman-cloud:///1efbfc64-7ad6-4330-aa51-176f36fbd108"
+								},
+								{
+									"key": "covid",
+									"description": "Required*",
+									"type": "file",
+									"src": "postman-cloud:///1efbfc64-99d2-4540-b5d4-eefb0c5c784f"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}/etl/csv",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"etl",
+								"csv"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "200 with warning",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "vaccination",
+											"description": "Required",
+											"type": "file",
+											"src": "postman-cloud:///1efbfc64-55f7-4b90-bb3e-56b1e4836222"
+										},
+										{
+											"key": "vaccine",
+											"description": "Required",
+											"type": "file",
+											"src": "postman-cloud:///1efbfc64-69fc-43c0-a532-12152024084b"
+										},
+										{
+											"key": "covid_global",
+											"description": "Opitional file",
+											"type": "file",
+											"src": "postman-cloud:///1efbfc64-7ad6-4330-aa51-176f36fbd108",
+											"disabled": true
+										},
+										{
+											"key": "covid",
+											"description": "Required",
+											"type": "file",
+											"src": "postman-cloud:///1efbfc64-99d2-4540-b5d4-eefb0c5c784f"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{url}}/etl/csv",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"etl",
+										"csv"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 21 Dec 2024 23:54:39 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "115"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"success\",\n    \"warning\": [\n        \"Warning: Unable to process the optional file 'covid_global': http: no such file\"\n    ]\n}"
+						},
+						{
+							"name": "200",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "vaccination",
+											"description": "Required",
+											"type": "file",
+											"src": "postman-cloud:///1efbfc64-55f7-4b90-bb3e-56b1e4836222"
+										},
+										{
+											"key": "vaccine",
+											"description": "Required",
+											"type": "file",
+											"src": "postman-cloud:///1efbfc64-69fc-43c0-a532-12152024084b"
+										},
+										{
+											"key": "covid_global",
+											"description": "Opitional file",
+											"type": "file",
+											"src": "postman-cloud:///1efbfc64-7ad6-4330-aa51-176f36fbd108"
+										},
+										{
+											"key": "covid",
+											"description": "Required",
+											"type": "file",
+											"src": "postman-cloud:///1efbfc64-99d2-4540-b5d4-eefb0c5c784f"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{url}}/etl/csv",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"etl",
+										"csv"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 21 Dec 2024 23:54:54 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "36"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"success\",\n    \"warning\": null\n}"
+						},
+						{
+							"name": "422",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "vaccination",
+											"description": "Required*",
+											"type": "file",
+											"src": "/D:/covid-19-neo4J/docs/data/vaccination-data.csv"
+										},
+										{
+											"key": "vaccine",
+											"description": "Required*",
+											"type": "file",
+											"src": "postman-cloud:///1efbfc64-69fc-43c0-a532-12152024084b"
+										},
+										{
+											"key": "covid_global",
+											"description": "Opitional file",
+											"type": "file",
+											"src": "postman-cloud:///1efbfc64-7ad6-4330-aa51-176f36fbd108"
+										},
+										{
+											"key": "covid",
+											"description": "Required*",
+											"type": "file",
+											"src": "postman-cloud:///1efbfc64-99d2-4540-b5d4-eefb0c5c784f"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{url}}/etl/csv",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"etl",
+										"csv"
+									]
+								}
+							},
+							"status": "Unprocessable Entity",
+							"code": 422,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 25 Dec 2024 23:22:50 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "294"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": {},\n    \"errors\": [\n        \"Error processing file 'covid': error unmarshalling CSV data: record on line 0; parse error on line 2, column 1: parsing time \\\"05/01/2020\\\" as \\\"2006-01-02T15:04:05Z07:00\\\": cannot parse \\\"05/01/2020\\\" as \\\"2006\\\"\"\n    ],\n    \"message\": \"error processing some files\",\n    \"warnings\": null\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "questions",
+			"item": [
+				{
+					"name": "Total Cases And Deaths By Country And Date",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/questions/1?country_code=BR&date=10/01/2021",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"questions",
+								"1"
+							],
+							"query": [
+								{
+									"key": "country_code",
+									"value": "BR",
+									"description": "Country code"
+								},
+								{
+									"key": "date",
+									"value": "10/01/2021",
+									"description": "Date"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "200",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/questions/1?country_code=BR&date=10/01/2021",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"questions",
+										"1"
+									],
+									"query": [
+										{
+											"key": "country_code",
+											"value": "BR",
+											"description": "Country code"
+										},
+										{
+											"key": "date",
+											"value": "10/01/2021",
+											"description": "Date"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 26 Dec 2024 09:20:20 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "292"
+								}
+							],
+							"cookie": [],
+							"body": "[\n    {\n        \"country\": \"Brazil\",\n        \"country_code\": \"BR\",\n        \"created_at\": \"2024-12-26T04:33:43.5637373Z\",\n        \"cumulative_cases\": 8013708,\n        \"cumulative_deaths\": 201460,\n        \"date_reported\": \"10/01/2021\",\n        \"id\": \"C1PC9TFCBH3QF4\",\n        \"new_cases\": 313130,\n        \"new_deaths\": 6049,\n        \"updated_at\": \"2024-12-26T04:33:43.5637373Z\",\n        \"who_region\": \"AMRO\"\n    }\n]"
+						}
+					]
+				},
+				{
+					"name": "Vaccinated People By Country And Date",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/questions/2?country_code=BRA&date=17/01/2021",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"questions",
+								"2"
+							],
+							"query": [
+								{
+									"key": "country_code",
+									"value": "BRA",
+									"description": "Country code"
+								},
+								{
+									"key": "date",
+									"value": "17/01/2021",
+									"description": "Date"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "200",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/questions/2?country_code=BRA&date=17/01/2021",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"questions",
+										"2"
+									],
+									"query": [
+										{
+											"key": "country_code",
+											"value": "BRA",
+											"description": "Country code"
+										},
+										{
+											"key": "date",
+											"value": "17/01/2021",
+											"description": "Date"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 26 Dec 2024 15:50:08 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1034"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": {\n        \"c\": {\n            \"Id\": 14909,\n            \"ElementId\": \"4:af72f23b-5f0d-47a2-9ee4-0cf6b872d50e:14909\",\n            \"Labels\": [\n                \"Country\"\n            ],\n            \"Props\": {\n                \"code\": \"BRA\",\n                \"created_at\": \"2024-12-26T12:10:51.5935835Z\",\n                \"id\": \"C3974H06D3QE4Z\",\n                \"name\": \"Brazil\",\n                \"region\": \"AMRO\",\n                \"updated_at\": \"2024-12-26T12:10:51.5935835Z\"\n            }\n        },\n        \"d\": {\n            \"Id\": 14910,\n            \"ElementId\": \"4:af72f23b-5f0d-47a2-9ee4-0cf6b872d50e:14910\",\n            \"Labels\": [\n                \"Date\"\n            ],\n            \"Props\": {\n                \"date\": \"17/01/2021\"\n            }\n        },\n        \"v\": {\n            \"Id\": 80755,\n            \"ElementId\": \"4:af72f23b-5f0d-47a2-9ee4-0cf6b872d50e:80755\",\n            \"Labels\": [\n                \"Vaccination\"\n            ],\n            \"Props\": {\n                \"country\": \"Brazil\",\n                \"created_at\": \"2024-12-26T12:15:10.8025722Z\",\n                \"data_source\": \"REPORTING\",\n                \"date_updated\": \"29/12/2023\",\n                \"first_vaccine_date\": \"17/01/2021\",\n                \"id\": \"V53DA1YTDB1MAD\",\n                \"iso3\": \"BRA\",\n                \"persons_booster_add_dose\": 1,\n                \"persons_booster_add_dose_per100\": 52,\n                \"persons_last_dose\": 1,\n                \"persons_last_dose_per100\": 81,\n                \"persons_vaccinated_1plus_dose\": 185000000,\n                \"persons_vaccinated_1plus_dose_per100\": 87,\n                \"total_vaccinations\": 5,\n                \"total_vaccinations_per100\": 243,\n                \"updated_at\": \"2024-12-26T12:15:10.8025722Z\",\n                \"who_region\": \"AMRO\"\n            }\n        }\n    },\n    \"message\": \"success\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Vaccines By Country And StartDate",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/questions/3?country_code=GHA&start_date=03/02/2021",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"questions",
+								"3"
+							],
+							"query": [
+								{
+									"key": "country_code",
+									"value": "GHA",
+									"description": "Country code"
+								},
+								{
+									"key": "start_date",
+									"value": "03/02/2021",
+									"description": "Date"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "200",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/questions/3?country_code=GHA&start_date=03/02/2021",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"questions",
+										"3"
+									],
+									"query": [
+										{
+											"key": "country_code",
+											"value": "GHA",
+											"description": "Country code"
+										},
+										{
+											"key": "start_date",
+											"value": "03/02/2021",
+											"description": "Date"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 26 Dec 2024 15:49:21 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "848"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": {\n        \"c\": {\n            \"Id\": 15002,\n            \"ElementId\": \"4:af72f23b-5f0d-47a2-9ee4-0cf6b872d50e:15002\",\n            \"Labels\": [\n                \"Country\"\n            ],\n            \"Props\": {\n                \"code\": \"GHA\",\n                \"created_at\": \"2024-12-26T12:10:51.8373515Z\",\n                \"id\": \"CFZF1N8NGY7QXC\",\n                \"name\": \"Ghana\",\n                \"region\": \"AFRO\",\n                \"updated_at\": \"2024-12-26T12:10:51.8373515Z\"\n            }\n        },\n        \"d\": {\n            \"Id\": 14899,\n            \"ElementId\": \"4:af72f23b-5f0d-47a2-9ee4-0cf6b872d50e:14899\",\n            \"Labels\": [\n                \"Date\"\n            ],\n            \"Props\": {\n                \"date\": \"03/02/2021\"\n            }\n        },\n        \"v\": {\n            \"Id\": 33298,\n            \"ElementId\": \"4:af72f23b-5f0d-47a2-9ee4-0cf6b872d50e:33298\",\n            \"Labels\": [\n                \"Vaccine\"\n            ],\n            \"Props\": {\n                \"authorization_date\": \"02/09/2021\",\n                \"company\": \"Gamaleya Research Institute\",\n                \"created_at\": \"2024-12-26T12:16:51.9086628Z\",\n                \"data_source\": \"REPORTING\",\n                \"end_date\": \"\",\n                \"id\": \"VFGVSPK4KTQ8A7\",\n                \"iso3\": \"GHA\",\n                \"product\": \"Gam-Covid-Vac\",\n                \"start_date\": \"03/02/2021\",\n                \"updated_at\": \"2024-12-26T12:16:51.9086628Z\",\n                \"vaccine\": \"Gamaleya - Gam-Covid-Vac\"\n            }\n        }\n    },\n    \"message\": \"success\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Vaccines By Country And StartDate Copy",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/questions/4?country_code=GHA&start_date=03/02/2021",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"questions",
+								"4"
+							],
+							"query": [
+								{
+									"key": "country_code",
+									"value": "GHA",
+									"description": "Country code"
+								},
+								{
+									"key": "start_date",
+									"value": "03/02/2021",
+									"description": "Date"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "200",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/questions/3?country_code=GHA&start_date=03/02/2021",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"questions",
+										"3"
+									],
+									"query": [
+										{
+											"key": "country_code",
+											"value": "GHA",
+											"description": "Country code"
+										},
+										{
+											"key": "start_date",
+											"value": "03/02/2021",
+											"description": "Date"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 26 Dec 2024 15:49:21 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "848"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": {\n        \"c\": {\n            \"Id\": 15002,\n            \"ElementId\": \"4:af72f23b-5f0d-47a2-9ee4-0cf6b872d50e:15002\",\n            \"Labels\": [\n                \"Country\"\n            ],\n            \"Props\": {\n                \"code\": \"GHA\",\n                \"created_at\": \"2024-12-26T12:10:51.8373515Z\",\n                \"id\": \"CFZF1N8NGY7QXC\",\n                \"name\": \"Ghana\",\n                \"region\": \"AFRO\",\n                \"updated_at\": \"2024-12-26T12:10:51.8373515Z\"\n            }\n        },\n        \"d\": {\n            \"Id\": 14899,\n            \"ElementId\": \"4:af72f23b-5f0d-47a2-9ee4-0cf6b872d50e:14899\",\n            \"Labels\": [\n                \"Date\"\n            ],\n            \"Props\": {\n                \"date\": \"03/02/2021\"\n            }\n        },\n        \"v\": {\n            \"Id\": 33298,\n            \"ElementId\": \"4:af72f23b-5f0d-47a2-9ee4-0cf6b872d50e:33298\",\n            \"Labels\": [\n                \"Vaccine\"\n            ],\n            \"Props\": {\n                \"authorization_date\": \"02/09/2021\",\n                \"company\": \"Gamaleya Research Institute\",\n                \"created_at\": \"2024-12-26T12:16:51.9086628Z\",\n                \"data_source\": \"REPORTING\",\n                \"end_date\": \"\",\n                \"id\": \"VFGVSPK4KTQ8A7\",\n                \"iso3\": \"GHA\",\n                \"product\": \"Gam-Covid-Vac\",\n                \"start_date\": \"03/02/2021\",\n                \"updated_at\": \"2024-12-26T12:16:51.9086628Z\",\n                \"vaccine\": \"Gamaleya - Gam-Covid-Vac\"\n            }\n        }\n    },\n    \"message\": \"success\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Vaccines By Country And StartDate Copy 2",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/questions/5?region=EMRO",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"questions",
+								"5"
+							],
+							"query": [
+								{
+									"key": "region",
+									"value": "EMRO"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Ping",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/ping",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"ping"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "200",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/ping",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"ping"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Access-Control-Allow-Credentials",
+							"value": "true"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Sat, 21 Dec 2024 15:52:12 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "15"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"ping\": \"pong\"\n}"
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "url",
+			"value": "localhost:4000/v1",
+			"type": "default"
+		}
+	]
+}
