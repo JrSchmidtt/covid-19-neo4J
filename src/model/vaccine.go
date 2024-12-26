@@ -4,7 +4,7 @@ import "time"
 
 // Represents a Vaccine along the time and world regions.
 type Vaccine struct {
-	ID                int64    `json:"id"`
+	ID                string    `json:"id"`
 	ISO3              string    `json:"iso3" csv:"ISO3"`
 	Product           string    `json:"product" csv:"PRODUCT_NAME"`
 	Vaccine           string    `json:"vaccine" csv:"VACCINE_NAME"`
