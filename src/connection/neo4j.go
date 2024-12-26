@@ -102,12 +102,79 @@ func CloseNeo4j() {
 
 // ExecuteWriteTransaction executes a write transaction in Neo4j using the Singleton session
 func ExecuteWriteTransaction(ctx context.Context, query string, params map[string]interface{}) (any, error) {
-	session := GetNeo4jSession() // Use Singleton session
+	session := GetNeo4jSession()
 
-	// Execute the write transaction
 	data, err := (*session).ExecuteWrite(ctx, func(tx neo4j.ManagedTransaction) (interface{}, error) {
 		_, err := tx.Run(ctx, query, params)
 		return nil, err
 	})
-	return data, err
+	if err != nil {
+		if neo4j.IsNeo4jError(err) && err.(*neo4j.Neo4jError).Code == "Neo.ClientError.Schema.ConstraintValidationFailed" {
+
+			return nil, nil 
+		}
+		log.Println("Error executing write transaction:", err)
+		return nil, err
+	}
+	return data, nil
+}
+
+
+// ExecuteReadTransaction executes a read transaction in Neo4j using the Singleton session
+func ExecuteReadTransaction(ctx context.Context, query string, params map[string]interface{}) ([]map[string]interface{}, error) {
+	session := GetNeo4jSession()
+	var nodes []map[string]interface{}
+	_, err := (*session).ExecuteRead(ctx, func(tx neo4j.ManagedTransaction) (interface{}, error) {
+		result, err := tx.Run(ctx, query, params)
+		if err != nil {
+			return nil, err
+		}
+		for result.Next(ctx) {
+			record := result.Record()
+			node, _ := record.Get("c")
+			if node != nil {
+				neoNode := node.(neo4j.Node)
+				properties := neoNode.Props
+				nodes = append(nodes, properties)
+			}
+		}
+		if err := result.Err(); err != nil {
+			return nil, err
+		}
+		fmt.Println("Nodes:", nodes)
+		return nodes, nil
+	})
+	if err != nil {
+		log.Println("Error executing read transaction:", err)
+		return nil, err
+	}
+	return nodes, nil
+}
+
+// ExecuteReadTransaction executes a read transaction in Neo4j using the Singleton session
+func ExecuteReadTransactionMap(ctx context.Context, query string, params map[string]interface{}) (map[string]interface{}, error) {
+	session := GetNeo4jSession()
+	resultMap := make(map[string]interface{})
+	_, err := (*session).ExecuteRead(ctx, func(tx neo4j.ManagedTransaction) (interface{}, error) {
+		result, err := tx.Run(ctx, query, params)
+		if err != nil {
+			return nil, err
+		}
+		for result.Next(ctx) {
+			record := result.Record().AsMap()
+			for key, value := range record {
+				resultMap[key] = value
+			}
+		}
+		if result.Err() != nil {
+			return nil, result.Err()
+		}
+		return result, nil
+	})
+
+	if err != nil {
+		log.Println("Error executing read transaction:", err)
+		return nil, err
+	}
+	return resultMap, nil
 }
