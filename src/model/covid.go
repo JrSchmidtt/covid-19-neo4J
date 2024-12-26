@@ -4,7 +4,7 @@ import "time"
 
 // Represents a Covid-19 along the time and world regions.
 type Covid struct {
-	ID               int64     `json:"id"` // Internal ID for the record
+	ID               string    `json:"id"` // Internal ID for the record
 	DateReported     string    `json:"date_reported" csv:"Date_reported"`
 	CountryCode      string    `json:"country_code" csv:"Country_code"`
 	Country          string    `json:"country" csv:"Country"`
@@ -19,7 +19,7 @@ type Covid struct {
 
 // Represents a Covid-19 global data.
 type CovidGlobal struct {
-	ID                      int64     `json:"id"` // Internal ID for the record
+	ID                      string    `json:"id"` // Internal ID for the record
 	Country                 string    `json:"country" csv:"Name"`
 	WHORegion               string    `json:"who_region" csv:"WHO Region"`
 	CumulativeCases         int64     `json:"cumulative_cases" csv:"Cases - cumulative total"`
