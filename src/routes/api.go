@@ -26,13 +26,13 @@ func API(r *gin.Engine) *gin.Engine {
 		questions.GET("/2", handler.GetVaccinatedPeopleByCountryAndDate)
 
 		// // 3. Vacinas usadas em um país e as datas de início de aplicação
-		// questions.GET("/3", handler.GetVaccinesByCountryAndStartDate)
+		questions.GET("/3", handler.GetVaccinesByCountryAndStartDate)
 
 		// // 4. País com o maior número de casos acumulados até uma data específica
 		// questions.GET("/4", handler.GetCountryWithHighestCasesByDate)
 
 		// // 5. Vacina mais utilizada em uma região específica
-		// questions.GET("/5", handler.GetMostUsedVaccineByRegion)
+		questions.GET("/5", handler.GetMostUsedVaccineByRegion)
 	}
 	return r
 }
