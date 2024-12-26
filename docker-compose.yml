@@ -1,13 +1,14 @@
 services:
   neo4j:
-    image: neo4j:5.9
+    image: neo4j:enterprise
     container_name: neo4j
     environment:
       - NEO4J_AUTH=neo4j/XHO112OV # Default: neo4j/neo4j
       - NEO4J_dbms_logs_debug_level=INFO
+      - NEO4J_ACCEPT_LICENSE_AGREEMENT=eval # Required for enterprise edition
     ports:
-      - "7474:7474" # Interface web
-      - "7687:7687" # Interface bolt
+      - "7474:7474" # Web interface
+      - "7687:7687" # Bolt interface
     volumes:
       - neo4j_data:/data
       - neo4j_logs:/logs
