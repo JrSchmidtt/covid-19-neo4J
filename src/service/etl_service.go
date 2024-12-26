@@ -4,10 +4,8 @@ import (
 	"encoding/csv"
 	"fmt"
 	"mime/multipart"
-	"reflect"
-	"regexp"
-	"time"
-
+	"github.com/JrSchmidtt/covid-19-neo4J/src/model"
+	"github.com/JrSchmidtt/covid-19-neo4J/src/storage"
 	"github.com/gocarina/gocsv"
 )
 
@@ -23,6 +21,7 @@ type ETLService interface {
 	SetFileConfig(configs []FileConfig)
 	Extract(files map[string]*multipart.FileHeader) (map[string]interface{}, []string, []string, error)
 	Transform(data map[string]interface{}) error
+	Load(data map[string]interface{}) error
 }
 
 type etlService struct {
@@ -68,73 +67,58 @@ func (s *etlService) Extract(files map[string]*multipart.FileHeader) (map[string
 	return parsedData, errors, warnings, nil
 }
 
-// The Transform method receives the parsed data and applies transformations to it.
-// In this case, it parses the date fields in the data to the time.Time type.
-// The date fields are identified by a regular expression that matches the pattern dd/MM/yyyy.
 func (s *etlService) Transform(data map[string]interface{}) error {
-    // Regex patterns to match dates in DD/MM/YYYY and YYYY-MM-DD formats
-    dateRegexDDMMYYYY := regexp.MustCompile(`\d{2}/\d{2}/\d{4}`)
-    dateRegexYYYYMMDD := regexp.MustCompile(`\d{4}-\d{2}-\d{2}`)
+	fmt.Println("Transforming data...")
 
-    for key, rawData := range data {
-        // Check if the value is a pointer to a slice
-        value := reflect.ValueOf(rawData)
-        if value.Kind() == reflect.Ptr {
-            value = value.Elem() // Dereference the pointer
-        }
+	return nil
+}
 
-        if value.Kind() != reflect.Slice {
-            return fmt.Errorf("expected slice for key '%s', got %T", key, rawData)
-        }
+// The Load method receives the transformed data and saves it to the database neo4j.
+func (s *etlService) Load(data map[string]interface{}) error {
+	for range data {
+		fmt.Println("Loading data...")
+	}
+	vaccination := data["vaccination"].(*[]model.Vaccination)
+	for _, v := range *vaccination {
+		country := model.Country{
+			Name: v.Country,
+			Code: v.ISO3,
+			Region: v.WHORegion,
+		}
+		_, err := storage.CreateCountry(country)
+		if err != nil {
+			fmt.Println(err)
+		}
+		_, err = storage.CreateVaccination(v)
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
 
-        // Iterate over each item in the slice
-        for i := 0; i < value.Len(); i++ {
-            item := value.Index(i)
-            if item.Kind() == reflect.Ptr {
-                item = item.Elem() // Dereference the pointer (struct)
-            }
+	vaccine := data["vaccine"].(*[]model.Vaccine)
+	for _, v := range *vaccine {
+		_, err := storage.CreateVaccine(v)
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
 
-            if item.Kind() != reflect.Struct {
-                return fmt.Errorf("expected struct in slice for key '%s', got %T", key, item.Interface())
-            }
+	covidGlobal := data["covid_global"].(*[]model.CovidGlobal)
+	for _, c := range *covidGlobal {
+		_, err := storage.CreateCovidGlobal(c)
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
 
-            // Iterate over each field in the struct
-            for j := 0; j < item.NumField(); j++ {
-                field := item.Field(j)
-                fieldType := item.Type().Field(j)
-
-                // Check if the field is exported and a string
-                if field.Kind() == reflect.String && field.CanSet() {
-                    strValue := field.String()
-
-                    var parsedDate time.Time
-                    var err error
-
-                    // Check and process date in DD/MM/YYYY format
-                    if dateRegexDDMMYYYY.MatchString(strValue) {
-                        parsedDate, err = time.Parse("02/01/2006", strValue)
-                        if err != nil {
-                            return fmt.Errorf("failed to parse date in field '%s' for key '%s': %v", fieldType.Name, key, err)
-                        }
-                    }
-
-                    // Check and process date in YYYY-MM-DD format
-                    if dateRegexYYYYMMDD.MatchString(strValue) {
-                        parsedDate, err = time.Parse("2006-01-02", strValue)
-                        if err != nil {
-                            return fmt.Errorf("failed to parse date in field '%s' for key '%s': %v", fieldType.Name, key, err)
-                        }
-                    }
-
-                    // If a date was successfully parsed, save it as an ISO 8601 string with a timestamp
-                    if !parsedDate.IsZero() {
-                        field.SetString(parsedDate.Format(time.RFC3339)) // Save as ISO 8601 format
-                    }
-                }
-            }
-        }
-    }
-    return nil
+	covid := data["covid"].(*[]model.Covid)
+	for _, c := range *covid {
+		_, err := storage.CreateCovid(c)
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
+	return nil
 }
 
 func processFile(fileHeader *multipart.FileHeader, cfg FileConfig) (interface{}, error) {
