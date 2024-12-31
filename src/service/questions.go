@@ -5,7 +5,7 @@ import (
 )
 
 // GetTotalCasesAndDeathsByCountryAndDate retrieves the total cases and deaths for a specific country and date.
-func GetTotalCasesAndDeathsByCountryAndDate(country_code string, date string) ([]map[string]interface{}, error) {
+func GetTotalCasesAndDeathsByCountryAndDate(country_code string, date string) (map[string]interface{}, error) {
 	return storage.GetCovidByCountryAndDate(country_code, date)
 }
 
