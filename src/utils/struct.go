@@ -27,3 +27,34 @@ func StructToMap(v interface{}, tagName string) (map[string]interface{}, error) 
 
 	return result, nil
 }
+
+// MapToStruct converts a map[string]interface{} to a struct using dynamic tags (like neo4j).
+// This function uses reflection to iterate over the map and populate the struct fields.
+func MapToStruct(data map[string]interface{}, result interface{}) error {
+	value := reflect.ValueOf(result).Elem()
+	typ := reflect.TypeOf(result).Elem()
+	for key, val := range data {
+		field, ok := typ.FieldByNameFunc(func(fieldName string) bool {
+			field, found := typ.FieldByName(fieldName)
+			if !found {
+				return false
+			}
+			jsonTag := field.Tag.Get("json")
+			return jsonTag == key
+		})
+		if !ok {
+			continue
+		}
+		fieldValue := value.FieldByName(field.Name)
+		if !fieldValue.IsValid() || !fieldValue.CanSet() {
+			continue
+		}
+		fieldValueReflect := reflect.ValueOf(val)
+		if fieldValueReflect.Type().ConvertibleTo(fieldValue.Type()) {
+			fieldValue.Set(fieldValueReflect.Convert(fieldValue.Type()))
+		} else {
+			return fmt.Errorf("type mismatch for field %s", key)
+		}
+	}
+	return nil
+}
