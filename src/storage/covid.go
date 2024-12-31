@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	"github.com/JrSchmidtt/covid-19-neo4J/pkg/id"
@@ -73,20 +74,23 @@ func CreateCovidGlobal(covidGlobal model.CovidGlobal) (model.CovidGlobal, error)
 	return covidGlobal, nil
 }
 
-func GetCovidByCountryAndDate(countryCode string, date string) (map[string]interface{}, error) {
+func GetCovidByCountryAndDate(countryCode string, date string) (model.Covid, error) {
 	query := `
 		MATCH (d:Date {date: $date})
 		MATCH (cv:Covid)-[:ON_DATE]->(d)
 		MATCH (cv:Covid)-[:REPORTED_ON]->(c:Country {code: $code})
-		RETURN cv, d, c
+		RETURN cv
 	`
 	res, err := connection.ExecuteReadTransactionMap(context.Background(), query, map[string]interface{}{
-		"code":          countryCode,
+		"code": countryCode,
 		"date": date,
 	})
 	if err != nil {
-		log.Println("Error getting covid record:", err)
-		return nil, err
+		return model.Covid{}, fmt.Errorf("error getting covid record: %v", err)
 	}
-	return res, nil
+	var covid model.Covid
+	err = utils.Neo4jNodeToStruct(res, "cv", &covid); if err != nil {
+		return model.Covid{}, fmt.Errorf("error mapping country node to struct: %v", err)
+	}
+	return covid, nil
 }
