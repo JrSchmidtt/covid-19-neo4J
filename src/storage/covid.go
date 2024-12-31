@@ -73,21 +73,20 @@ func CreateCovidGlobal(covidGlobal model.CovidGlobal) (model.CovidGlobal, error)
 	return covidGlobal, nil
 }
 
-func GetCovidByCountryAndDate(countryCode string, date string) ([]map[string]interface{}, error) {
+func GetCovidByCountryAndDate(countryCode string, date string) (map[string]interface{}, error) {
 	query := `
-		MATCH (c:Country {code: $date_reported})
-		MATCH (v:Vaccination)-[:VACCINATED_ON]->(c)
-		MATCH (v)-[:ON_DATE]->(d:Date {date: $date})
-		RETURN c, v, d
+		MATCH (d:Date {date: $date})
+		MATCH (cv:Covid)-[:ON_DATE]->(d)
+		MATCH (cv:Covid)-[:REPORTED_ON]->(c:Country {code: $code})
+		RETURN cv, d, c
 	`
-	res, err := connection.ExecuteReadTransaction(context.Background(), query, map[string]interface{}{
+	res, err := connection.ExecuteReadTransactionMap(context.Background(), query, map[string]interface{}{
 		"code":          countryCode,
-		"date_reported": date,
+		"date": date,
 	})
 	if err != nil {
 		log.Println("Error getting covid record:", err)
 		return nil, err
 	}
-	covid := res
-	return covid, nil
+	return res, nil
 }
