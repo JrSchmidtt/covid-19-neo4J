@@ -16,7 +16,9 @@ func GetTotalCasesAndDeathsByCountryAndDate(c *gin.Context) {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, covid)
+	c.JSON(http.StatusOK, gin.H{
+		"covid": covid,
+	})
 }
 
 func GetVaccinatedPeopleByCountryAndDate(c *gin.Context) {
