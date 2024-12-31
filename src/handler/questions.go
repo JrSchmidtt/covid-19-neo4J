@@ -11,15 +11,12 @@ import (
 func GetTotalCasesAndDeathsByCountryAndDate(c *gin.Context) {
 	country_code := c.Query("country_code")
 	date := c.Query("date")
-	result, err := service.GetTotalCasesAndDeathsByCountryAndDate(country_code, date)
+	covid, err := service.GetTotalCasesAndDeathsByCountryAndDate(country_code, date)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"message": "success",
-		"data": result,
-	})
+	c.JSON(http.StatusOK, covid)
 }
 
 func GetVaccinatedPeopleByCountryAndDate(c *gin.Context) {
