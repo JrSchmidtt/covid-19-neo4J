@@ -1,11 +1,12 @@
 package service
 
 import (
+	"github.com/JrSchmidtt/covid-19-neo4J/src/model"
 	"github.com/JrSchmidtt/covid-19-neo4J/src/storage"
 )
 
 // GetTotalCasesAndDeathsByCountryAndDate retrieves the total cases and deaths for a specific country and date.
-func GetTotalCasesAndDeathsByCountryAndDate(country_code string, date string) (map[string]interface{}, error) {
+func GetTotalCasesAndDeathsByCountryAndDate(country_code string, date string) (model.Covid, error) {
 	return storage.GetCovidByCountryAndDate(country_code, date)
 }
 
