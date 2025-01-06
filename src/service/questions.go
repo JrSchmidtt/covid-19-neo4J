@@ -24,3 +24,8 @@ func GetVaccinesByCountryAndStartDate(country_code string, start_date string) (m
 func GetMostUsedVaccineByRegion(region string) (map[string]interface{}, error) {
 	return storage.GetMostUsedVaccineByRegion(region)
 }
+
+// GetCountryWithHighestCasesByDate retrieves the country with the highest cases by a specific date.
+func GetCountryWithHighestCasesByDate(date string) (map[string]interface{}, error) {
+	return storage.GetCountryWithHighestCasesByDate(date)
+}
