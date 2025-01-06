@@ -26,7 +26,7 @@ func GetVaccinatedPeopleByCountryAndDate(c *gin.Context) {
 	date := c.Query("date")
 	result, err := service.GetVaccinatedPeopleByCountryAndDate(country_code, date)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
@@ -42,7 +42,7 @@ func GetVaccinesByCountryAndStartDate(c *gin.Context) {
 	fmt.Println("start_date", start_date)
 	result, err := service.GetVaccinesByCountryAndStartDate(country_code, start_date)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
@@ -55,7 +55,20 @@ func GetMostUsedVaccineByRegion(c *gin.Context) {
 	region := c.Query("region")
 	result, err := service.GetMostUsedVaccineByRegion(region)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"message": "success",
+		"data": result,
+	})
+}
+
+func GetCountryWithHighestCasesByDate(c *gin.Context) {
+	date := c.Query("date")
+	result, err := service.GetCountryWithHighestCasesByDate(date)
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
