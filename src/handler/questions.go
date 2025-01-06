@@ -16,9 +16,7 @@ func GetTotalCasesAndDeathsByCountryAndDate(c *gin.Context) {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"covid": covid,
-	})
+	c.JSON(http.StatusOK, covid)
 }
 
 func GetVaccinatedPeopleByCountryAndDate(c *gin.Context) {
@@ -29,10 +27,7 @@ func GetVaccinatedPeopleByCountryAndDate(c *gin.Context) {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"message": "success",
-		"data": result,
-	})
+	c.JSON(http.StatusOK, result)
 }
 
 func GetVaccinesByCountryAndStartDate(c *gin.Context) {
@@ -45,10 +40,7 @@ func GetVaccinesByCountryAndStartDate(c *gin.Context) {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"message": "success",
-		"data": result,
-	})
+	c.JSON(http.StatusOK, result)
 }
 
 func GetMostUsedVaccineByRegion(c *gin.Context) {
@@ -58,10 +50,7 @@ func GetMostUsedVaccineByRegion(c *gin.Context) {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"message": "success",
-		"data": result,
-	})
+	c.JSON(http.StatusOK, result)
 }
 
 func GetCountryWithHighestCasesByDate(c *gin.Context) {
@@ -71,8 +60,5 @@ func GetCountryWithHighestCasesByDate(c *gin.Context) {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"message": "success",
-		"data": result,
-	})
+	c.JSON(http.StatusOK, result)
 }
