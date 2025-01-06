@@ -41,3 +41,24 @@ func CreateCountry(country model.Country) (model.Country, error) {
 	}
 	return country, nil
 }
+
+
+func GetCountryWithHighestCasesByDate(date string) (map[string]interface{}, error) {
+	query := `
+		MATCH (c:Country)-[:HAS]->(covid:Covid)
+		WHERE covid.date = $date
+		WITH c, covid
+		ORDER BY covid.total_cases DESC
+		LIMIT 1
+		RETURN c.name AS country, covid.total_cases AS total_cases
+	`
+
+	result, err := connection.ExecuteReadTransactionMap(context.Background(), query, map[string]interface{}{
+		"date": date,
+	})
+	if err != nil {
+		log.Println("Error getting country with highest cases by date:", err)
+		return nil, err
+	}
+	return result, nil
+}
