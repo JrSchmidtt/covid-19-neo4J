@@ -3,7 +3,6 @@ package handler
 import (
 	"mime/multipart"
 	"net/http"
-
 	"github.com/JrSchmidtt/covid-19-neo4J/src/model"
 	"github.com/JrSchmidtt/covid-19-neo4J/src/service"
 	"github.com/gin-gonic/gin"
@@ -59,16 +58,19 @@ func ProcessCSV(c *gin.Context) {
 		})
 		return
 	}
-	// vaccination := parsedData["vaccination"].(*[]model.Vaccination)
-	// vaccine := parsedData["vaccine"].(*[]model.Vaccine)
-	// covidGlobal := parsedData["covid_global"].(*[]model.CovidGlobal)
-	// covid := parsedData["covid"].(*[]model.Covid)
-
+	debug := c.Query("debug")
+	if debug == "true" {
+		c.JSON(http.StatusOK, gin.H{
+			"message":  "success",
+			"errors":   errors,
+			"warnings": warnings,
+			"data":     parsedData,
+		})
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{
 		"message":  "success",
 		"errors":   errors,
 		"warnings": warnings,
-		//  "data":     parsedData,
-		// "data":     parsedData, // TODO: Make this a query parameter.
 	})
 }
