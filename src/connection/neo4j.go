@@ -176,5 +176,8 @@ func ExecuteReadTransactionMap(ctx context.Context, query string, params map[str
 		log.Println("Error executing read transaction:", err)
 		return nil, err
 	}
+	if len(resultMap) == 0 {
+		return nil, fmt.Errorf("no records found")
+	}
 	return resultMap, nil
 }

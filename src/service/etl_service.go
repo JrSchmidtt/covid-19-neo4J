@@ -95,14 +95,6 @@ func (s *etlService) Load(data map[string]interface{}) error {
 		}
 	}
 
-	vaccine := data["vaccine"].(*[]model.Vaccine)
-	for _, v := range *vaccine {
-		_, err := storage.CreateVaccine(v)
-		if err != nil {
-			fmt.Println(err)
-		}
-	}
-
 	covidGlobal := data["covid_global"].(*[]model.CovidGlobal)
 	for _, c := range *covidGlobal {
 		_, err := storage.CreateCovidGlobal(c)
@@ -114,6 +106,14 @@ func (s *etlService) Load(data map[string]interface{}) error {
 	covid := data["covid"].(*[]model.Covid)
 	for _, c := range *covid {
 		_, err := storage.CreateCovid(c)
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
+	
+	vaccine := data["vaccine"].(*[]model.Vaccine)
+	for _, v := range *vaccine {
+		_, err := storage.CreateVaccine(v)
 		if err != nil {
 			fmt.Println(err)
 		}

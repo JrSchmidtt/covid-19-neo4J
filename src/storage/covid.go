@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-
 	"github.com/JrSchmidtt/covid-19-neo4J/pkg/id"
 	"github.com/JrSchmidtt/covid-19-neo4J/src/connection"
 	"github.com/JrSchmidtt/covid-19-neo4J/src/model"

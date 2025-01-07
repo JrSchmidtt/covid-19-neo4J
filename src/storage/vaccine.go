@@ -26,15 +26,15 @@ func CreateVaccine(vaccine model.Vaccine) (model.Vaccine, error) {
     	MERGE (d:Date {date: $start_date})
     	WITH d
 
-    	MATCH (c:Country {code: $country_code})
+    	MERGE (c:Country {code: $country_code})
     	WITH d, c
 
-    	CREATE (v:Vaccine)
-    	SET v = $vaccine
+		MERGE (v:Vaccine {product: $vaccine_product})
+		ON CREATE SET v = $vaccine
 
     	MERGE (v)-[:STARTED_ON]->(d)
     	MERGE (v)-[:AUTHORIZATION_ON]->(authDate:Date {date: $authorization_date})
-    	MERGE (v)-[:USES]->(c)
+    	MERGE (c)-[:USES]->(v)
 	`
 
 	_, err = connection.ExecuteWriteTransaction(context.Background(), query, map[string]interface{}{
@@ -42,6 +42,7 @@ func CreateVaccine(vaccine model.Vaccine) (model.Vaccine, error) {
 		"start_date":         vaccine.StartDate,
 		"authorization_date": vaccine.AuthorizationDate,
 		"country_code":       vaccine.ISO3,
+		"vaccine_product":    vaccine.Product,
 	})
 	if err != nil {
 		log.Println("Error creating vaccine record:", err)
@@ -76,12 +77,12 @@ func GetVaccinesByCountryAndStartDate(country_code string, start_date string) (m
 
 func GetMostUsedVaccineByRegion(region string) (map[string]interface{}, error) {
 	query := `
-		MATCH (r:Region {name: "AFRO"})
+		MATCH (r:Region {name: $region})
 		MATCH (c:Country)-[:BELONGS]->(r)
-		MATCH (v:Vaccine)-[:USES]->(c)
-		WITH v, COUNT(c) AS vaccineCount
-		ORDER BY vaccineCount DESC
-		RETURN v.product AS mostUsedVaccine, vaccineCount
+		MATCH (c)-[:USES]->(v:Vaccine)
+		RETURN v.vaccine AS vaccine, COUNT(v) AS count
+		ORDER BY count DESC
+		LIMIT 1
 	`
 
 	result, err := connection.ExecuteReadTransactionMap(context.Background(), query, map[string]interface{}{
@@ -91,6 +92,5 @@ func GetMostUsedVaccineByRegion(region string) (map[string]interface{}, error) {
 		log.Println("Error retrieving most used vaccine by region:", err)
 		return nil, err
 	}
-
 	return result, nil
 }
